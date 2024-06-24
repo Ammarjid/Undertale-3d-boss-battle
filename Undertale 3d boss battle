@@ -1,0 +1,71 @@
+-- LocalScript inside ScreenGui
+
+local npcFolder = workspace:FindFirstChild("NPCs") -- Adjust the name based on actual folder in your game
+
+-- Create the GUI structure
+local screenGui = script.Parent
+local mainFrame = Instance.new("Frame", screenGui)
+mainFrame.Size = UDim2.new(0.5, 0, 0.5, 0)
+mainFrame.Position = UDim2.new(0.25, 0, 0.25, 0)
+mainFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+
+local titleLabel = Instance.new("TextLabel", mainFrame)
+titleLabel.Size = UDim2.new(1, 0, 0.1, 0)
+titleLabel.Text = "Undertale 3D Boss Battles Script"
+titleLabel.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+titleLabel.TextScaled = true
+
+local homeTab = Instance.new("Frame", mainFrame)
+homeTab.Size = UDim2.new(1, 0, 0.9, 0)
+homeTab.Position = UDim2.new(0, 0, 0.1, 0)
+homeTab.BackgroundColor3 = Color3.fromRGB(75, 75, 75)
+
+local npcList = Instance.new("ScrollingFrame", homeTab)
+npcList.Size = UDim2.new(1, 0, 1, 0)
+npcList.CanvasSize = UDim2.new(0, 0, 5, 0) -- Adjust this based on the number of NPCs
+
+-- Function to enlarge the hitbox of a given part
+local function enlargeHitbox(part)
+    if part and part:IsA("BasePart") then
+        part.Size = part.Size * Vector3.new(5, 5, 5)
+        part.Transparency = 1
+    end
+end
+
+-- Function to process an NPC
+local function processNPC(npc)
+    local humanoidRootPart = npc:FindFirstChild("HumanoidRootPart")
+    if humanoidRootPart then
+        enlargeHitbox(humanoidRootPart)
+    end
+
+    for _, partName in ipairs({"Torso", "UpperTorso"}) do
+        local bodyPart = npc:FindFirstChild(partName)
+        if bodyPart then
+            enlargeHitbox(bodyPart)
+        end
+    end
+end
+
+-- Populate the NPC list
+if npcFolder then
+    local yPos = 0
+    for _, npc in ipairs(npcFolder:GetChildren()) do
+        if npc:IsA("Model") and npc:FindFirstChildOfClass("Humanoid") then
+            local npcButton = Instance.new("TextButton", npcList)
+            npcButton.Size = UDim2.new(1, 0, 0, 50)
+            npcButton.Position = UDim2.new(0, 0, 0, yPos)
+            npcButton.Text = npc.Name
+            npcButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+            npcButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+            npcButton.TextScaled = true
+            yPos = yPos + 50
+            
+            -- Enlarge hitbox on button click
+            npcButton.MouseButton1Click:Connect(function()
+                processNPC(npc)
+            end)
+        end
+    end
+end
